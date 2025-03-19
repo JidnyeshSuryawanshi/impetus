@@ -10,7 +10,6 @@ import DiseasePrediction from './pages/DiseasePrediction';
 import HospitalMap from './pages/HospitalMap';
 import Appointment from './pages/Appointment';
 import MRIAnalysis from './pages/MRIAnalysis';
-import Services from './pages/Services';
 
 function App() {
   return (
