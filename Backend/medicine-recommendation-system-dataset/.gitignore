@@ -1,0 +1,8 @@
+_MACOSX/
+.DS_Store
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+venv/
