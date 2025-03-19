@@ -10,6 +10,7 @@ import DiseasePrediction from './pages/DiseasePrediction';
 import HospitalMap from './pages/HospitalMap';
 import Appointment from './pages/Appointment';
 import MRIAnalysis from './pages/MRIAnalysis';
+import Services from './pages/Services';
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
             <Route path="/hospital-map" element={<HospitalMap />} />
             <Route path="/appointment" element={<Appointment />} />
             <Route path="/mri-analysis" element={<MRIAnalysis />} />
-            <Route path="/services" element={<Services />} />
+            <Route path="/Services" element={<Services />} />
           </Routes>
         </main>
         <Footer />
