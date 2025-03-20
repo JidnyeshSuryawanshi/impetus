@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import userApi from '../api/userApi';
 
 export default function Register() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -12,15 +16,61 @@ export default function Register() {
     password: '',
     confirmPassword: '',
     phone: '',
-    dateOfBirth: '',
+    dob: '', // Changed from dateOfBirth to match backend model
     gender: '',
     agreeToTerms: false,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Registration attempt:', formData);
+    
+    // Reset error
+    setError('');
+    
+    // Password validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    // Password length validation
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Prepare data according to backend model
+      const userData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        dob: formData.dob,
+        // Optional fields based on the user model
+        medicalHistory: []
+      };
+      
+      // Use API service to register
+      const response = await userApi.register(userData);
+      
+      console.log('Registration successful:', response);
+      
+      // Navigate to login page with success message
+      navigate('/login', { state: { message: 'Registration successful! Please login.' }});
+      
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'An error occurred during registration'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -44,6 +94,12 @@ export default function Register() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
+              {error}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
@@ -72,7 +128,6 @@ export default function Register() {
                     id="lastName"
                     name="lastName"
                     type="text"
-                    required
                     value={formData.lastName}
                     onChange={handleChange}
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
@@ -108,7 +163,6 @@ export default function Register() {
                   id="phone"
                   name="phone"
                   type="tel"
-                  required
                   value={formData.phone}
                   onChange={handleChange}
                   className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
@@ -118,16 +172,15 @@ export default function Register() {
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
-                <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
                   Date of birth
                 </label>
                 <div className="mt-1">
                   <input
-                    id="dateOfBirth"
-                    name="dateOfBirth"
+                    id="dob"
+                    name="dob"
                     type="date"
-                    required
-                    value={formData.dateOfBirth}
+                    value={formData.dob}
                     onChange={handleChange}
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
                   />
@@ -142,7 +195,6 @@ export default function Register() {
                   <select
                     id="gender"
                     name="gender"
-                    required
                     value={formData.gender}
                     onChange={handleChange}
                     className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm"
@@ -182,6 +234,7 @@ export default function Register() {
                   )}
                 </button>
               </div>
+              <p className="mt-1 text-xs text-gray-500">Password must be at least 6 characters</p>
             </div>
 
             <div>
@@ -237,9 +290,10 @@ export default function Register() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                disabled={loading}
+                className="flex w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50"
               >
-                Create account
+                {loading ? 'Creating account...' : 'Create account'}
               </button>
             </div>
           </form>

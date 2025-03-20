@@ -1,19 +1,66 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import userApi from '../api/userApi';
 
 export default function Login() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   });
 
-  const handleSubmit = (e) => {
+  // Check for success message passed from register page
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the message from location state
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', formData);
+    
+    // Reset messages
+    setError('');
+    setSuccessMessage('');
+    
+    try {
+      setLoading(true);
+      
+      // Use API service for login
+      const response = await userApi.login({
+        email: formData.email,
+        password: formData.password
+      });
+      
+      console.log('Login successful:', response);
+      
+      // Store token in localStorage or sessionStorage based on rememberMe
+      const storage = formData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('token', response.token);
+      storage.setItem('user', JSON.stringify(response.user));
+      
+      // Redirect to dashboard or home page
+      navigate('/dashboard');
+      
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'Invalid email or password'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -37,6 +84,18 @@ export default function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
+              {error}
+            </div>
+          )}
+          
+          {successMessage && (
+            <div className="mb-4 p-3 rounded bg-green-50 border border-green-200 text-green-700">
+              {successMessage}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -110,10 +169,17 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                disabled={loading}
+                className="flex w-full justify-center rounded-md border border-transparent bg-primary-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50"
               >
-                Sign in
+                {loading ? 'Signing in...' : 'Sign in'}
               </button>
+            </div>
+            
+            <div className="mt-4 flex items-center justify-center">
+              <Link to="/doctor-login" className="font-medium text-primary-600 hover:text-primary-500">
+                Sign in as a doctor
+              </Link>
             </div>
           </form>
         </div>
