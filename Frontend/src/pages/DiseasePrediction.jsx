@@ -1,128 +1,220 @@
-import { useState } from 'react';
+import React, { useState } from "react";
 
 export default function DiseasePrediction() {
-  const [formData, setFormData] = useState({
-    symptoms: '',
-    age: '',
-    gender: '',
-    medicalHistory: '',
-  });
+  const [symptoms, setSymptoms] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle prediction logic here
-    console.log('Prediction request:', formData);
+  const handleAddSymptom = () => {
+    if (input.trim() && !symptoms.includes(input.trim())) {
+      setSymptoms([...symptoms, input.trim()]);
+      setInput("");
+    }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleRemoveSymptom = (symptom) => {
+    setSymptoms(symptoms.filter((s) => s !== symptom));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symptoms }),
+      });
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddSymptom();
+    }
   };
 
   return (
-    <div className="bg-white py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-primary-600">Disease Prediction</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            AI-Powered Health Assessment
-          </p>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Enter your symptoms and health information to get an AI-powered prediction of potential health conditions.
-            Please note that this is for informational purposes only and should not replace professional medical advice.
-          </p>
+    <div className="bg-slate-50 min-h-screen font-sans mt-24">
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* Hero section */}
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-slate-800 mb-2">Disease Prediction & Medical Recommendation</h2>
+          <p className="text-slate-600">Enter your symptoms for AI-powered diagnosis and treatment recommendations</p>
         </div>
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div>
-              <label htmlFor="symptoms" className="block text-sm font-medium leading-6 text-gray-900">
-                Symptoms
-              </label>
-              <div className="mt-2">
-                <textarea
-                  id="symptoms"
-                  name="symptoms"
-                  rows={4}
-                  required
-                  value={formData.symptoms}
-                  onChange={handleChange}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  placeholder="Describe your symptoms in detail..."
-                />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium leading-6 text-gray-900">
-                  Age
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="number"
-                    name="age"
-                    id="age"
-                    required
-                    value={formData.age}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="gender" className="block text-sm font-medium leading-6 text-gray-900">
-                  Gender
-                </label>
-                <div className="mt-2">
-                  <select
-                    id="gender"
-                    name="gender"
-                    required
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="medicalHistory" className="block text-sm font-medium leading-6 text-gray-900">
-                Medical History
-              </label>
-              <div className="mt-2">
-                <textarea
-                  id="medicalHistory"
-                  name="medicalHistory"
-                  rows={4}
-                  value={formData.medicalHistory}
-                  onChange={handleChange}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  placeholder="Any relevant medical history or conditions..."
-                />
-              </div>
-            </div>
-
-            <div>
+        {/* Symptom input section */}
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+          <h3 className="text-lg font-semibold text-slate-800 mb-4">Describe your symptoms:</h3>
+          <form onSubmit={handleSubmit}>
+            <div className="flex mb-4">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-grow px-4 py-3 border border-slate-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g., persistent headache, mild fever, dry cough..."
+              />
               <button
-                type="submit"
-                className="block w-full rounded-md bg-primary-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                type="button"
+                onClick={handleAddSymptom}
+                className="bg-primary-600 text-white px-4 py-3 rounded-r-lg hover:bg-indigo-700 transition-colors"
               >
-                Get Prediction
+                Add
               </button>
             </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {symptoms.map((symptom, index) => (
+                <span key={index} className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full flex items-center">
+                  {symptom}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSymptom(symptom)}
+                    className="ml-2 text-indigo-400 hover:text-indigo-700"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || symptoms.length === 0}
+              className={`w-full py-3 rounded-lg text-white font-medium transition-colors ${loading || symptoms.length === 0
+                ? "bg-slate-300 cursor-not-allowed"
+                : "bg-primary-600 hover:bg-primay-700"
+                }`}
+            >
+              {loading ? "Analyzing..." : "Analyze Symptoms"}
+            </button>
           </form>
         </div>
-      </div>
+
+        {/* Results section */}
+        {result && (
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="border-b border-slate-200 bg-indigo-50 p-4">
+              <h3 className="text-xl font-bold text-slate-800">Prediction Results</h3>
+            </div>
+
+            <div className="p-6">
+              {/* Diseases */}
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold text-slate-800 mb-3">
+                  Predicted Condition{result.predictions.diseases.length > 1 ? "s" : ""}:
+                </h4>
+                <div className="space-y-2">
+                  {result.predictions.diseases.map((disease, index) => (
+                    <div key={index} className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-primary-600 mr-2"></div>
+                      <span className="text-primary-700 font-medium">{disease}</span>
+
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h4 className="flex items-center text-lg font-semibold text-slate-800 mb-2">
+                  Description
+                </h4>
+                <div className="bg-slate-50 p-4 rounded-lg text-slate-700">
+                  {result.predictions.general_details.description
+                    .filter(desc => desc !== "Not available")
+                    .map((desc, idx) => (
+                      <p key={idx} className={idx > 0 ? "mt-2" : ""}>
+                        {desc}
+                      </p>
+                    ))}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Diet */}
+                <div>
+                  <h4 className="flex items-center text-lg font-semibold text-slate-800 mb-2">
+                    Recommended Diet
+                  </h4>
+                  <ul className="bg-slate-50 p-4 rounded-lg text-slate-700 list-disc list-inside">
+                    {result.predictions.general_details.diets.flat().map((diet, idx) => (
+                      <li key={idx} className="mb-1">{diet.replace(/[\[\]']/g, "")}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Medications */}
+                <div>
+                  <h4 className="flex items-center text-lg font-semibold text-slate-800 mb-2">
+                    Medications
+                  </h4>
+                  <ul className="bg-slate-50 p-4 rounded-lg text-slate-700 list-disc list-inside">
+                    {result.predictions.general_details.medications.flat().map((med, idx) => (
+                      <li key={idx} className="mb-1">{med.replace(/[\[\]']/g, "")}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+                {/* Precautions */}
+                <div>
+                  <h4 className="flex items-center text-lg font-semibold text-slate-800 mb-2">
+                    Precautions
+                  </h4>
+                  <ul className="bg-slate-50 p-4 rounded-lg text-slate-700 list-disc list-inside">
+                    {result.predictions.general_details.precautions.map((precaution, idx) => (
+                      <li key={idx} className="mb-1 capitalize">{precaution}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Workout */}
+                <div>
+                  <h4 className="flex items-center text-lg font-semibold text-slate-800 mb-2">
+                    Lifestyle Recommendations
+                  </h4>
+                  <ul className="bg-slate-50 p-4 rounded-lg text-slate-700 list-disc list-inside max-h-60 overflow-y-auto">
+                    {result.predictions.general_details.workout.map((workout, idx) => (
+                      <li key={idx} className="mb-1">{workout}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <div className="bg-indigo-50 p-4 rounded-lg mb-4">
+                  <p className="text-indigo-800 text-sm">
+                    <strong>Important:</strong> This prediction is based on machine learning and should not replace professional medical advice. Please consult a healthcare provider for proper diagnosis and treatment.
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setResult(null);
+                    setSymptoms([]);
+                  }}
+                  className="w-full py-3 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                >
+                  Start New Prediction
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
-} 
+}
