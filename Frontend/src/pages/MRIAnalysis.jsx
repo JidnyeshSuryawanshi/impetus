@@ -65,7 +65,7 @@ export default function MRIAnalysis() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:5000/api/predict', {
+      const response = await fetch('http://127.0.0.1:5000/api/predict', {
         method: 'POST',
         body: formData,
       });
@@ -117,15 +117,14 @@ export default function MRIAnalysis() {
                   Upload Your MRI Scan
                 </h2>
               </div>
-              
+
               <div className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div
-                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-200 ${
-                      isDragging
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-blue-500'
-                    }`}
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors duration-200 ${isDragging
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-300 hover:border-blue-500'
+                      }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
@@ -201,11 +200,10 @@ export default function MRIAnalysis() {
                     <button
                       type="submit"
                       disabled={loading || !file}
-                      className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white transition-all duration-150 ${
-                        loading || !file
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                      }`}
+                      className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white transition-all duration-150 ${loading || !file
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                        }`}
                     >
                       {loading ? (
                         <>
@@ -252,7 +250,7 @@ export default function MRIAnalysis() {
                   Analysis Results
                 </h2>
               </div>
-              
+
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
@@ -268,13 +266,13 @@ export default function MRIAnalysis() {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center border-b border-gray-200 pb-2">
                       <BeakerIcon className="h-5 w-5 mr-2 text-blue-600" />
                       Diagnostic Information
                     </h3>
-                    
+
                     <div>
                       <h4 className="text-sm uppercase tracking-wide text-gray-500 font-medium mb-2">
                         Prediction
@@ -285,7 +283,7 @@ export default function MRIAnalysis() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div>
                       <h4 className="text-sm uppercase tracking-wide text-gray-500 font-medium mb-2">
                         Confidence Scores
@@ -313,7 +311,7 @@ export default function MRIAnalysis() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-8 border-t border-gray-200 pt-6 flex justify-center">
                   <button
                     onClick={() => {
@@ -330,11 +328,11 @@ export default function MRIAnalysis() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-blue-50 rounded-lg p-4 mt-6 border border-blue-100 text-sm text-blue-800">
               <p className="font-medium mb-1">Important Note:</p>
-              <p>This AI analysis is for informational purposes only and should not replace professional medical advice. 
-              Please consult with a healthcare professional for proper diagnosis and treatment.</p>
+              <p>This AI analysis is for informational purposes only and should not replace professional medical advice.
+                Please consult with a healthcare professional for proper diagnosis and treatment.</p>
             </div>
           </div>
         )}
