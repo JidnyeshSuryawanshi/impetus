@@ -65,20 +65,29 @@ export default function MRIAnalysis() {
     formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:5000/predict', {
+      const response = await fetch('http://localhost:5000/api/predict', {
         method: 'POST',
         body: formData,
       });
 
-      const data = await response.json();
-
+      // First check if the response is ok
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze MRI');
+        const errorText = await response.text();
+        try {
+          // Try to parse as JSON
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || 'Failed to analyze MRI');
+        } catch (parseError) {
+          // If parsing fails, it's likely HTML
+          throw new Error(`Server error: ${response.status}`);
+        }
       }
 
+      const data = await response.json();
       setAnalysis(data);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'An error occurred while analyzing the MRI');
+      console.error('Error:', err);
     } finally {
       setLoading(false);
     }
@@ -226,7 +235,7 @@ export default function MRIAnalysis() {
                     Uploaded MRI Image
                   </h3>
                   <img
-                    src={preview}
+                    src={analysis.image_url || preview}
                     alt="MRI scan"
                     className="w-full h-64 object-contain rounded-lg bg-gray-50"
                   />
