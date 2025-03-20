@@ -1,5 +1,16 @@
 const Doctor = require('../models/doctor.model');
 
+// Function to generate unique doctor ID from email
+const generateDoctorId = (email) => {
+  // Take first 3 letters of email username
+  const emailPrefix = email.split('@')[0].slice(0, 3).toUpperCase();
+  // Get current year
+  const year = new Date().getFullYear().toString().slice(-2);
+  // Generate random 3 digits
+  const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `DR${emailPrefix}${year}${randomNum}`;
+};
+
 // Register a new doctor
 const registerDoctor = async (req, res) => {
   try {
@@ -18,6 +29,18 @@ const registerDoctor = async (req, res) => {
       availability
     } = req.body;
 
+    console.log(firstName,
+      lastName,
+      email,
+      password,
+      specialization,
+      experience,
+      qualification,
+      license,
+      hospital,
+      address,
+      phone,
+      availability)
     // Check if doctor already exists
     const existingDoctor = await Doctor.findOne({ 
       $or: [{ email }, { license }] 
@@ -29,8 +52,12 @@ const registerDoctor = async (req, res) => {
       });
     }
 
+    // Generate doctor_id
+    const doctor_id = generateDoctorId(email);
+
     // Create new doctor
     const doctor = new Doctor({
+      doctor_id,
       firstName,
       lastName,
       email,
@@ -54,6 +81,7 @@ const registerDoctor = async (req, res) => {
       message: 'Doctor registered successfully',
       doctor: {
         id: doctor._id,
+        doctor_id: doctor.doctor_id,
         firstName: doctor.firstName,
         lastName: doctor.lastName,
         email: doctor.email,
@@ -97,6 +125,7 @@ const loginDoctor = async (req, res) => {
       message: 'Login successful',
       doctor: {
         id: doctor._id,
+        doctor_id: doctor.doctor_id,
         firstName: doctor.firstName,
         lastName: doctor.lastName,
         email: doctor.email,
@@ -134,7 +163,10 @@ const getDoctorProfile = async (req, res) => {
     if (!doctor) {
       return res.status(404).json({ message: 'Doctor not found' });
     }
-    res.json(doctor);
+    res.json({
+      ...doctor.toObject(),
+      doctor_id: doctor.doctor_id
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching doctor profile', error: error.message });
   }
@@ -176,6 +208,7 @@ const updateDoctorProfile = async (req, res) => {
       message: 'Profile updated successfully',
       doctor: {
         id: req.doctor._id,
+        doctor_id: req.doctor.doctor_id,
         firstName: req.doctor.firstName,
         lastName: req.doctor.lastName,
         email: req.doctor.email,

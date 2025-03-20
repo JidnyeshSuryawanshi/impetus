@@ -2,22 +2,34 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Function to generate unique doctor ID from email
+const generateDoctorId = (email) => {
+  // Take first 3 letters of email username
+  const emailPrefix = email.split('@')[0].slice(0, 3).toUpperCase();
+  // Get current year
+  const year = new Date().getFullYear().toString().slice(-2);
+  // Generate random 3 digits
+  const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+  return `DR${emailPrefix}${year}${randomNum}`;
+};
+
 const doctorSchema = new mongoose.Schema({
+  doctor_id: {
+    type: String,
+    unique: true,
+  },
   firstName: {
     type: String,
     required: true,
-    trim: true,
   },
   lastName: {
     type: String,
     required: true,
-    trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
     trim: true,
   },
   password: {
@@ -32,21 +44,18 @@ const doctorSchema = new mongoose.Schema({
   },
   experience: {
     type: Number,
-    required: true,
+    // it will be number of years
   },
   qualification: {
     type: String,
-    required: true,
     trim: true,
   },
   license: {
     type: String,
-    required: true,
     unique: true,
   },
   hospital: {
     type: String,
-    required: true,
     trim: true,
   },
   address: {
@@ -58,7 +67,6 @@ const doctorSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
   },
   availability: [{
     day: {
@@ -70,6 +78,14 @@ const doctorSchema = new mongoose.Schema({
   }]
 }, {
   timestamps: true,
+});
+
+// Generate doctor_id before saving
+doctorSchema.pre('save', async function(next) {
+  if (!this.doctor_id) {
+    this.doctor_id = generateDoctorId(this.email);
+  }
+  next();
 });
 
 // Hash the password before saving
