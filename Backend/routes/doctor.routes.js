@@ -16,4 +16,4 @@ router.post('/login', loginDoctor);
 router.get('/profile', doctorAuth, getDoctorProfile);
 router.patch('/profile', doctorAuth, updateDoctorProfile);
 
-module.exports = router; 
+module.exports = router;
