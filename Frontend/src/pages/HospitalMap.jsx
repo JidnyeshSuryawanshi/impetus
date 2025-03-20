@@ -21,6 +21,8 @@ const HospitalMap = () => {
   const [location, setLocation] = useState("");
   const [hospitals, setHospitals] = useState([]);
   const [hospitalLimit, setHospitalLimit] = useState(5); // Default limit to 5 hospitals
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!map) {
@@ -33,13 +35,23 @@ const HospitalMap = () => {
   }, [map]);
 
   const getUserLocation = () => {
+    setLoading(true);
+    setError(null);
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        ({ coords: { latitude, longitude } }) => setUserLocation(latitude, longitude),
-        () => alert("Geolocation not available!")
+        ({ coords: { latitude, longitude } }) => {
+          setUserLocation(latitude, longitude);
+          setLoading(false);
+        },
+        (err) => {
+          setError("Could not access your location.");
+          setLoading(false);
+        }
       );
     } else {
-      alert("Geolocation not supported by your browser.");
+      setError("Geolocation not supported by your browser.");
+      setLoading(false);
     }
   };
 
@@ -54,9 +66,13 @@ const HospitalMap = () => {
 
   const fetchHospitals = (lat, lon) => {
     if (!lat || !lon) {
-      alert("Enter a location or use your location.");
+      setError("Enter a location or use your location.");
       return;
     }
+
+    setLoading(true);
+    setError(null);
+
     let url = `https://overpass-api.de/api/interpreter?data=[out:json];node[%22amenity%22=%22hospital%22](around:25000,${lat},${lon});out;`;
     fetch(url)
       .then((res) => res.json())
@@ -84,8 +100,13 @@ const HospitalMap = () => {
 
         setHospitalMarkers(newMarkers);
         setHospitals(limitedHospitals);
+        setLoading(false);
       })
-      .catch((err) => console.error("Error fetching hospitals:", err));
+      .catch((err) => {
+        console.error("Error fetching hospitals:", err);
+        setError("Failed to fetch hospitals. Please try again.");
+        setLoading(false);
+      });
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -103,94 +124,155 @@ const HospitalMap = () => {
   const handleLocationInput = (e) => {
     setLocation(e.target.value);
     if (e.target.value.length < 3) return;
+
+    setLoading(true);
+    setError(null);
+
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${e.target.value}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.length > 0) {
           setUserLocation(data[0].lat, data[0].lon);
         } else {
-          alert("No results found for the entered location.");
+          setError("No results found for the entered location.");
         }
+        setLoading(false);
       })
-      .catch((err) => console.error("Error fetching location suggestions:", err));
+      .catch((err) => {
+        console.error("Error fetching location suggestions:", err);
+        setError("Failed to search location. Please try again.");
+        setLoading(false);
+      });
+  };
+
+  const searchHospitals = () => {
+    if (userMarker) {
+      const { lat, lng } = userMarker.getLatLng();
+      fetchHospitals(lat, lng);
+    } else {
+      setError("Please set a location first.");
+    }
   };
 
   return (
-    <div className="text-center bg-gray-100 min-h-screen">
-      {/* Navbar */}
-      <div className="h-20"></div>
-      <nav className="bg-gradient-to-tr from-blue-50 to-blue-100 text-blue-600 p-4 ">
-        <h1 className="text-xl font-bold">Hospital Finder</h1>
-      </nav>
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+      {/* Header */}
+      <div className="bg-white shadow-md">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-20">
+            <h1 className="text-2xl font-bold text-blue-700">
+              <span className="text-3xl">🏥</span> Hospital Finder
+            </h1>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
-      <div className="p-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Find Nearest Hospitals</h2>
-        <div className="flex flex-col md:flex-row justify-center gap-4 mb-4">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={getUserLocation}>
-            📍 Use My Location
-          </button>
-          <input
-            type="text"
-            value={location}
-            onChange={handleLocationInput}
-            className="px-4 py-2 border rounded w-full md:w-auto"
-            placeholder="Search a location"
-          />
-          <select
-            value={hospitalLimit}
-            onChange={(e) => setHospitalLimit(Number(e.target.value))}
-            className="px-4 py-2 border rounded w-full md:w-auto"
-          >
-            <option value={3}>Show 3 Hospitals</option>
-            <option value={5}>Show 5 Hospitals</option>
-            <option value={7}>Show 7 Hospitals</option>
-          </select>
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => {
-              if (userMarker) {
-                const { lat, lng } = userMarker.getLatLng();
-                fetchHospitals(lat, lng);
-              } else {
-                alert("Please set a location first.");
-              }
-            }}
-          >
-            🔍 Search
-          </button>
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Nearest Hospitals</h2>
+
+          {error && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+              <p>{error}</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center"
+              onClick={getUserLocation}
+              disabled={loading}
+            >
+              <span className="mr-2">📍</span> Use My Location
+            </button>
+
+            <input
+              type="text"
+              value={location}
+              onChange={handleLocationInput}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search a location"
+              disabled={loading}
+            />
+
+            <select
+              value={hospitalLimit}
+              onChange={(e) => setHospitalLimit(Number(e.target.value))}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              disabled={loading}
+            >
+              <option value={3}>Show 3 Hospitals</option>
+              <option value={5}>Show 5 Hospitals</option>
+              <option value={7}>Show 7 Hospitals</option>
+              <option value={10}>Show 10 Hospitals</option>
+            </select>
+
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium flex items-center justify-center"
+              onClick={searchHospitals}
+              disabled={loading}
+            >
+              <span className="mr-2">🔍</span> Search Hospitals
+            </button>
+          </div>
+
+          {loading && (
+            <div className="text-center py-4">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent align-[-0.125em]"></div>
+              <p className="mt-2 text-gray-600">Loading...</p>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col md:flex-row">
+
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Map Section */}
-          <div id="map" className="w-full md:w-2/3 h-[calc(100vh-150px)] rounded shadow mb-4 md:mb-0"></div>
+          <div className="w-full lg:w-2/3">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div id="map" className="w-full h-[500px] md:h-[600px]"></div>
+            </div>
+          </div>
 
           {/* Hospital List Section */}
-          <div className="w-full md:w-1/3 bg-white p-4 rounded shadow overflow-y-auto max-h-[calc(100vh-150px)]">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Hospitals Nearby</h3>
-            {hospitals.length > 0 ? (
-              <ul className="space-y-4">
-                {hospitals.map((hospital, index) => (
-                  <li
-                    key={index}
-                    className="p-4 border rounded shadow hover:bg-gray-100 transition"
-                  >
-                    <h4 className="text-md font-bold text-blue-600">
-                      {hospital.tags.name || "Unknown Hospital"}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      {hospital.tags["addr:full"] ||
-                        hospital.tags["addr:street"] ||
-                        "Address not available"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Distance: {hospital.distance} km
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-600">No hospitals found. Try searching a different location.</p>
-            )}
+          <div className="w-full lg:w-1/3">
+            <div className="bg-white rounded-lg shadow-lg p-6 h-[500px] md:h-[600px] overflow-y-auto">
+              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <span className="mr-2">🏥</span> Hospitals Nearby
+              </h3>
+
+              {hospitals.length > 0 ? (
+                <ul className="space-y-4">
+                  {hospitals.map((hospital, index) => (
+                    <li
+                      key={index}
+                      className="p-4 border border-gray-200 rounded-lg shadow-sm hover:bg-blue-50"
+                    >
+                      <h4 className="text-lg font-bold text-blue-700">
+                        {hospital.tags.name || "Unknown Hospital"}
+                      </h4>
+                      <p className="text-gray-600 mt-1">
+                        {hospital.tags["addr:full"] ||
+                          hospital.tags["addr:street"] ||
+                          "Address not available"}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <p className="text-green-600 font-medium">
+                          <span className="mr-1">📏</span> {hospital.distance} km
+                        </p>
+                        <button className="text-blue-600 text-sm font-medium">
+                          View Details
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-center">
+                  <span className="text-5xl mb-4">🔍</span>
+                  <p className="text-gray-600">No hospitals found. Try searching a different location.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
