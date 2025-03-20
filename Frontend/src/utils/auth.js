@@ -43,28 +43,42 @@ export const getUserType = () => {
 
 // Add a token interceptor for Axios
 export const setupAxiosInterceptors = (axios) => {
+  // Log interceptor setup
+  console.log('Setting up Axios interceptors');
+  
+  // Add request interceptor
   axios.interceptors.request.use(
     (config) => {
       const token = getToken();
       if (token) {
-        config.headers = {
-          ...config.headers,
-          Authorization: `Bearer ${token}`,
-        };
+        if (!config.headers) {
+          config.headers = {};
+        }
+        config.headers.Authorization = `Bearer ${token}`;
+        console.log(`Request to ${config.url}: Token attached`);
+      } else {
+        console.log(`Request to ${config.url}: No token available`);
       }
       return config;
     },
     (error) => {
+      console.error('Request interceptor error:', error);
       return Promise.reject(error);
     }
   );
 
   // Handle token expiration
   axios.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      console.log(`Response from ${response.config.url}: Status ${response.status}`);
+      return response;
+    },
     (error) => {
-      if (error.response?.status === 401) {
-        // Token expired or invalid
+      console.error('Response error:', error.response?.status, error.config?.url);
+      
+      // Only logout on specific 401 unauthorized errors
+      if (error.response?.status === 401 && error.response?.data?.message === 'Token expired') {
+        console.log('Token expired, logging out');
         logout();
         window.location.href = '/login?session=expired';
       }

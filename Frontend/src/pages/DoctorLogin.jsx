@@ -1,58 +1,43 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import userApi from '../api/userApi';
+import doctorApi from '../api/doctorApi';
 
-export default function Login() {
+export default function DoctorLogin() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   });
 
-  // Check for success message passed from register page
-  useEffect(() => {
-    if (location.state?.message) {
-      setSuccessMessage(location.state.message);
-      // Clear the message from location state
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location, navigate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Reset messages
+    // Reset error
     setError('');
-    setSuccessMessage('');
     
     try {
       setLoading(true);
       
-      // Use API service for login
-      const response = await userApi.login({
+      // Use API service for doctor login
+      const response = await doctorApi.login({
         email: formData.email,
         password: formData.password
       });
       
-      console.log('Login successful:', response);
+      console.log('Doctor login successful:', response);
       
       // Store token in localStorage or sessionStorage based on rememberMe
       const storage = formData.rememberMe ? localStorage : sessionStorage;
       storage.setItem('token', response.token);
-      storage.setItem('user', JSON.stringify(response.user));
+      storage.setItem('user', JSON.stringify(response.doctor));
       
-      // Trigger a storage event for our own app to detect
-      window.dispatchEvent(new Event('storage'));
-      
-      // Redirect to services page instead of dashboard
-      navigate('/services');
+      // Redirect to doctor dashboard
+      navigate('/doctor-dashboard');
       
     } catch (err) {
       console.error('Login error:', err);
@@ -78,10 +63,10 @@ export default function Login() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Welcome Back
+          Doctor Login
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Sign in to your account to continue
+          Sign in to your healthcare professional account
         </p>
       </div>
 
@@ -90,12 +75,6 @@ export default function Login() {
           {error && (
             <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700">
               {error}
-            </div>
-          )}
-          
-          {successMessage && (
-            <div className="mb-4 p-3 rounded bg-green-50 border border-green-200 text-green-700">
-              {successMessage}
             </div>
           )}
           
@@ -180,8 +159,8 @@ export default function Login() {
             </div>
             
             <div className="mt-4 flex items-center justify-center">
-              <Link to="/doctor-login" className="font-medium text-primary-600 hover:text-primary-500">
-                Sign in as a doctor
+              <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                Sign in as a patient
               </Link>
             </div>
           </form>
@@ -189,8 +168,8 @@ export default function Login() {
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Don't have an account?{' '}
-          <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
-            Sign up
+          <Link to="/doctor-register" className="font-medium text-primary-600 hover:text-primary-500">
+            Register as a doctor
           </Link>
         </p>
       </div>

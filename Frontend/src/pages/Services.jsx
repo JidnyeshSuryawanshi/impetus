@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   BeakerIcon,
   MapPinIcon,
@@ -6,7 +7,10 @@ import {
   CalendarIcon,
   UserGroupIcon,
   PhoneIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
+import { isAuthenticated, getCurrentUser } from '../utils/auth';
+import LogoutButton from '../components/LogoutButton';
 
 const services = [
   {
@@ -48,6 +52,27 @@ const services = [
 ];
 
 export default function Services() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const authStatus = isAuthenticated();
+      setAuthenticated(authStatus);
+      
+      if (authStatus) {
+        setUser(getCurrentUser());
+      }
+    };
+    
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
+
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">

@@ -8,11 +8,14 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DoctorLogin from './pages/DoctorLogin';
 import DiseasePrediction from './pages/DiseasePrediction';
 import HospitalMap from './pages/HospitalMap';
 import Appointment from './pages/Appointment';
 import MRIAnalysis from './pages/MRIAnalysis';
 import Services from './pages/Services';
+import Dashboard from './pages/Dashboard';
+import EditProfile from './pages/EditProfile';
 import { isAuthenticated, setupAxiosInterceptors } from './utils/auth';
 
 // Protected route component
@@ -45,10 +48,21 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/doctor-login" element={<DoctorLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/services" element={<Services />} />
             
             {/* Protected routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-profile" element={
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute>
+            } />
             <Route path="/disease-prediction" element={
               <ProtectedRoute>
                 <DiseasePrediction />
