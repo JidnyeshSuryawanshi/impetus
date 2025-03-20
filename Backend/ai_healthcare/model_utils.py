@@ -1,6 +1,10 @@
 import os
 import kaggle
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def download_model():
     """
@@ -14,15 +18,22 @@ def download_model():
         print("Downloading model from Kaggle...")
         
         # Configure Kaggle credentials
-        os.environ['KAGGLE_USERNAME'] = os.getenv('KAGGLE_USERNAME')
-        os.environ['KAGGLE_KEY'] = os.getenv('KAGGLE_KEY')
+        kaggle_username = os.getenv('KAGGLE_USERNAME')
+        kaggle_key = os.getenv('KAGGLE_KEY')
+        
+        if not kaggle_username or not kaggle_key:
+            raise ValueError("Kaggle credentials not found. Please set KAGGLE_USERNAME and KAGGLE_KEY in your .env file")
+            
+        os.environ['KAGGLE_USERNAME'] = kaggle_username
+        os.environ['KAGGLE_KEY'] = kaggle_key
         
         try:
             # Download the model from Kaggle
             kaggle.api.authenticate()
-            kaggle.api.model_download(
+            kaggle.api.dataset_download_files(
                 'esfiam/cnn-brain-tumor-detector',
-                path='.'
+                path='.',
+                unzip=True
             )
             print("Model downloaded successfully!")
         except Exception as e:
