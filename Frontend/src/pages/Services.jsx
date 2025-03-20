@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   BeakerIcon,
@@ -44,37 +45,48 @@ const services = [
     link: '/appointment',
     color: 'bg-red-500',
   },
-  
 ];
 
 export default function Services() {
   return (
-    <div className="bg-white">
+    <div className="bg-gradient-to-b from-white to-blue-50">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our Healthcare Services</h2>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            Our Healthcare Services
+          </h2>
+          <p className="mt-6 text-xl leading-8 text-gray-600">
             Discover our comprehensive range of healthcare services designed to provide you with the best medical care and support.
           </p>
         </div>
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+
+        <div className="mx-auto mt-20 grid max-w-lg gap-12 lg:max-w-none lg:grid-cols-3">
           {services.map((service) => (
             <div
               key={service.name}
-              className="relative rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
+              className="group relative overflow-hidden rounded-3xl bg-white shadow-xl"
             >
-              <div className={`${service.color} rounded-lg p-3 w-12 h-12 flex items-center justify-center mb-6`}>
-                <service.icon className="h-6 w-6 text-white" aria-hidden="true" />
-              </div>
-              <h3 className="text-xl font-semibold leading-7 text-gray-900">{service.name}</h3>
-              <p className="mt-4 text-base leading-7 text-gray-600">{service.description}</p>
-              <div className="mt-6">
-                <Link
-                  to={service.link}
-                  className="text-sm font-semibold leading-6 text-primary-600 hover:text-primary-500"
-                >
-                  Learn more <span aria-hidden="true">→</span>
-                </Link>
+              <div className={`${service.color} h-2 w-full absolute top-0`}></div>
+
+              <div className="p-8">
+                <div className={`${service.color} rounded-2xl p-4 w-16 h-16 flex items-center justify-center mb-6`}>
+                  <service.icon className="h-8 w-8 text-white" aria-hidden="true" />
+                </div>
+
+                <h3 className="text-2xl font-bold leading-7 text-gray-900 mb-4">{service.name}</h3>
+                <p className="text-lg leading-7 text-gray-600">{service.description}</p>
+
+                <div className="mt-8 flex items-center">
+                  <Link
+                    to={service.link}
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-white font-medium ${service.color}`}
+                  >
+                    Learn more
+                    <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
@@ -82,4 +94,4 @@ export default function Services() {
       </div>
     </div>
   );
-} 
+}
