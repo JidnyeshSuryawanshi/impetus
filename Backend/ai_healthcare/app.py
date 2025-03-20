@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
@@ -66,17 +66,26 @@ def predict():
             # Make prediction
             predicted_class, confidence_scores = predict_tumor(filepath)
             
+            # Get the host from the request
+            host = request.host_url.rstrip('/')
+            image_url = f"{host}/static/uploads/{filename}"
+            
             return jsonify({
                 'success': True,
                 'prediction': predicted_class,
                 'confidence_scores': confidence_scores,
-                'image_url': f'/static/uploads/{filename}'
+                'image_url': image_url
             })
         
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     
     return jsonify({'error': 'Invalid file type'}), 400
+
+# Route to serve static files
+@app.route('/static/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
     app.run(debug=True) 
