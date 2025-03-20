@@ -16,6 +16,7 @@ import MRIAnalysis from './pages/MRIAnalysis';
 import Services from './pages/Services';
 import Dashboard from './pages/Dashboard';
 import EditProfile from './pages/EditProfile';
+import Doctors from './pages/Doctors/Doctors';
 import { isAuthenticated, setupAxiosInterceptors } from './utils/auth';
 
 // Protected route component
@@ -31,7 +32,7 @@ function App() {
   // Set up axios defaults and interceptors
   useEffect(() => {
     // Set base URL for API requests
-    axios.defaults.baseURL = 'http://localhost:3000';
+    axios.defaults.baseURL = import.meta.env.VITE_SERVER_URL;
     
     // Set up interceptors for authentication
     setupAxiosInterceptors(axios);
@@ -51,6 +52,7 @@ function App() {
             <Route path="/doctor-login" element={<DoctorLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/doctors" element={<Doctors />} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={

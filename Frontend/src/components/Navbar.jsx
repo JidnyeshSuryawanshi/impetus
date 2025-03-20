@@ -8,6 +8,7 @@ const guestNavigation = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Services', href: '/services' },
+  { name: 'Doctors', href: '/doctors' },
   { name: 'Contact', href: '/contact' },
 ];
 
@@ -16,6 +17,7 @@ const userNavigation = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '/about' },
   { name: 'Services', href: '/services' },
+  { name: 'Doctors', href: '/doctors' },
   { name: 'Contact', href: '/contact' },
   { name: 'Disease Prediction', href: '/disease-prediction' },
   { name: 'Hospital Map', href: '/hospital-map' },

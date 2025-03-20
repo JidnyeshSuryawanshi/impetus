@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const userRoutes = require('./routes/user.routes');
-const doctorRoutes = require('./routes/doctor.routes');
+const doctorRoutes = require('./routes/doctors.routes');
 const appointmentRoutes = require('./routes/appointment.routes');
 
 // Load environment variables

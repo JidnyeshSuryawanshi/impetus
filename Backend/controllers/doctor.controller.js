@@ -1,16 +1,5 @@
 const Doctor = require('../models/doctor.model');
 
-// Function to generate unique doctor ID from email
-const generateDoctorId = (email) => {
-  // Take first 3 letters of email username
-  const emailPrefix = email.split('@')[0].slice(0, 3).toUpperCase();
-  // Get current year
-  const year = new Date().getFullYear().toString().slice(-2);
-  // Generate random 3 digits
-  const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `DR${emailPrefix}${year}${randomNum}`;
-};
-
 // Register a new doctor
 const registerDoctor = async (req, res) => {
   try {
@@ -43,7 +32,7 @@ const registerDoctor = async (req, res) => {
       availability)
     // Check if doctor already exists
     const existingDoctor = await Doctor.findOne({ 
-      $or: [{ email }, { license }] 
+      email:email
     });
     
     if (existingDoctor) {
@@ -52,12 +41,8 @@ const registerDoctor = async (req, res) => {
       });
     }
 
-    // Generate doctor_id
-    const doctor_id = generateDoctorId(email);
-
     // Create new doctor
     const doctor = new Doctor({
-      doctor_id,
       firstName,
       lastName,
       email,
@@ -227,10 +212,68 @@ const updateDoctorProfile = async (req, res) => {
   }
 };
 
+// Get all doctors
+const getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find({}, {
+      doctor_id: 1,
+      firstName: 1,
+      lastName: 1,
+      specialization: 1,
+      experience: 1,
+      qualification: 1,
+      hospital: 1,
+      consultationFee: 1,
+      address: 1,
+      phone: 1,
+      email: 1,
+      image: 1
+    });
+
+    res.status(200).json({
+      success: true,
+      data: doctors
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching doctors',
+      error: error.message
+    });
+  }
+};
+
+// Get doctor by ID
+const getDoctorById = async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne({ doctor_id: req.params.id });
+    
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: doctor
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching doctor details',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   registerDoctor,
   loginDoctor,
   logoutDoctor,
   getDoctorProfile,
-  updateDoctorProfile
+  updateDoctorProfile,
+  getAllDoctors,
+  getDoctorById
 }; 

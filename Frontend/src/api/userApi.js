@@ -18,7 +18,7 @@ const userApi = {
   login: async (credentials) => {
     try {
       const response = await axios.post('/api/users/login', credentials);
-      return response.data;
+      return await response.json();
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
       throw error;
@@ -90,4 +90,4 @@ const userApi = {
   },
 };
 
-export default userApi; 
+export default userApi;
