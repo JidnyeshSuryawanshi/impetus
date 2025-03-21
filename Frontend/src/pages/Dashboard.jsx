@@ -5,10 +5,12 @@ import {
   CalendarIcon, 
   ClipboardDocumentListIcon,
   ChartBarIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightEndOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import userApi from '../api/userApi';
 import { getCurrentUser, logout } from '../utils/auth';
+import { format, parseISO, isPast, isToday } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [appointments, setAppointments] = useState([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
   useEffect(() => {
     // Fetch latest user data from API
@@ -57,9 +61,76 @@ export default function Dashboard() {
     fetchUserProfile();
   }, []);
 
+  // Fetch appointments when tab changes or component mounts
+  useEffect(() => {
+    if (activeTab === 'appointments') {
+      fetchAppointments();
+    }
+  }, [activeTab]);
+
+  const fetchAppointments = async () => {
+    try {
+      setAppointmentsLoading(true);
+      
+      try {
+        // Try to get appointments from API
+        const appointmentsData = await userApi.getAppointments();
+        
+        // Process appointments to check if they're in the past
+        const processedAppointments = appointmentsData.map(appointment => {
+          const appointmentDateTime = new Date(`${appointment.date}T${appointment.time}`);
+          const isPastAppointment = isPast(appointmentDateTime);
+          
+          // If appointment is in the past and still marked as scheduled, mark as completed in UI
+          // (This doesn't change the status in the backend)
+          if (isPastAppointment && appointment.status === 'scheduled') {
+            return { ...appointment, uiStatus: 'completed' };
+          }
+          
+          return { ...appointment, uiStatus: appointment.status };
+        });
+        
+        setAppointments(processedAppointments);
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+        toast.error('Failed to load appointments from server');
+        
+        // Use empty array if API fails
+        setAppointments([]);
+      }
+    } finally {
+      setAppointmentsLoading(false);
+    }
+  };
+
+  const handleCancelAppointment = async (appointmentId) => {
+    try {
+      await userApi.cancelAppointment(appointmentId);
+      toast.success('Appointment cancelled successfully');
+      // Refresh appointments list
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      toast.error('Failed to cancel appointment');
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (loading) {
@@ -153,7 +224,7 @@ export default function Dashboard() {
                     onClick={handleLogout}
                     className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-red-600 hover:bg-red-50"
                   >
-                    <ArrowRightOnRectangleIcon className="mr-3 flex-shrink-0 h-5 w-5" />
+                    <ArrowRightEndOnRectangleIcon className="mr-3 flex-shrink-0 h-5 w-5" />
                     <span>Log out</span>
                   </button>
                 </li>
@@ -264,22 +335,99 @@ export default function Dashboard() {
                   </button>
                 </div>
                 
-                <div className="text-center py-12">
-                  <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No appointments</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    You don't have any upcoming appointments.
-                  </p>
-                  <div className="mt-6">
-                    <button
-                      type="button"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                      onClick={() => navigate('/appointment')}
-                    >
-                      Book an appointment
-                    </button>
+                {appointmentsLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
                   </div>
-                </div>
+                ) : appointments.length > 0 ? (
+                  <div className="overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Appointment ID
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Doctor
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date & Time
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {appointments.map((appointment) => {
+                          // Format the date and time
+                          const appointmentDate = appointment.date ? parseISO(appointment.date) : new Date();
+                          const formattedDate = format(appointmentDate, 'MMM dd, yyyy');
+                          const isUpcoming = !isPast(new Date(`${appointment.date}T${appointment.time}`)) || isToday(appointmentDate);
+                          
+                          return (
+                            <tr key={appointment.appointment_id}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {appointment.appointment_id}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {appointment.doctor?.firstName && appointment.doctor?.lastName 
+                                  ? `Dr. ${appointment.doctor.firstName} ${appointment.doctor.lastName}`
+                                  : appointment.doctor_id}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formattedDate} at {appointment.time}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(appointment.uiStatus)}`}>
+                                  {appointment.uiStatus.charAt(0).toUpperCase() + appointment.uiStatus.slice(1)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {isUpcoming && appointment.uiStatus === 'scheduled' ? (
+                                  <button
+                                    onClick={() => handleCancelAppointment(appointment.appointment_id)}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
+                                    Cancel
+                                  </button>
+                                ) : (
+                                  <span className="text-gray-400">No actions</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <CalendarIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No appointments</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      You don't have any upcoming appointments.
+                    </p>
+                    <div className="mt-6">
+                      <button
+                        type="button"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        onClick={() => navigate('/appointment')}
+                      >
+                        Book an appointment
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
