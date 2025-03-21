@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import userApi from '../api/userApi';
 import { getCurrentUser } from '../utils/auth';
 import { toast } from 'react-hot-toast';
+import {
+  CalendarIcon, 
+  ClockIcon, 
+  UserIcon, 
+  PhoneIcon, 
+  EnvelopeIcon, 
+  ClipboardDocumentListIcon,
+  BuildingOffice2Icon,
+  UserCircleIcon
+} from '@heroicons/react/24/outline';
 
 export default function Appointment() {
   const navigate = useNavigate();
@@ -155,77 +165,107 @@ export default function Appointment() {
   };
 
   return (
-    <div className="bg-white py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl lg:text-center">
-          <h2 className="text-base font-semibold leading-7 text-primary-600">Schedule Appointment</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Book Your Medical Visit
-          </p>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Schedule an appointment with our healthcare professionals. Fill out the form below and we'll confirm your appointment shortly.
+    <div className="bg-gradient-to-b from-white to-blue-50 min-h-screen py-16">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header section with elegant design */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
+            <CalendarIcon className="h-8 w-8 text-primary-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Book Your Appointment</h1>
+          <div className="h-1 w-20 bg-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 max-w-md mx-auto">
+            Schedule a consultation with our healthcare specialists and take the first step towards better health.
           </p>
         </div>
 
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                  Full Name
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
+        {/* Card containing the form */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gradient-to-r from-primary-500 to-primary-700 px-6 py-4">
+            <h2 className="text-white font-semibold text-lg">Appointment Details</h2>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="p-6">
+            {/* Personal Information Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                <UserCircleIcon className="h-5 w-5 mr-2 text-primary-500" />
+                Personal Information
+              </h3>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="relative">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <UserIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <PhoneIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                  Email
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
-                  Phone Number
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="tel"
-                    name="phone"
-                    id="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="department" className="block text-sm font-medium leading-6 text-gray-900">
-                  Department
-                </label>
-                <div className="mt-2">
+            {/* Appointment Details Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                <BuildingOffice2Icon className="h-5 w-5 mr-2 text-primary-500" />
+                Medical Department & Doctor
+              </h3>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="relative">
+                  <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                    Department
+                  </label>
                   <select
                     id="department"
                     name="department"
@@ -233,7 +273,7 @@ export default function Appointment() {
                     value={formData.department}
                     onChange={handleChange}
                     disabled={fetchingDoctors}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 disabled:bg-gray-100"
+                    className="block w-full py-2 px-3 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                   >
                     <option value="">Select department</option>
                     {departments.map((dept) => (
@@ -242,15 +282,21 @@ export default function Appointment() {
                       </option>
                     ))}
                   </select>
-                  {fetchingDoctors && <p className="mt-1 text-xs text-gray-500">Loading departments...</p>}
+                  {fetchingDoctors && (
+                    <div className="mt-1 flex items-center text-xs text-gray-500">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading departments...
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="doctor" className="block text-sm font-medium leading-6 text-gray-900">
-                  Preferred Doctor
-                </label>
-                <div className="mt-2">
+                <div className="relative">
+                  <label htmlFor="doctor" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Doctor
+                  </label>
                   <select
                     id="doctor"
                     name="doctor"
@@ -258,63 +304,88 @@ export default function Appointment() {
                     value={formData.doctor}
                     onChange={handleChange}
                     disabled={fetchingDoctors || !formData.department}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 disabled:bg-gray-100"
+                    className="block w-full py-2 px-3 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                   >
                     <option value="">Select doctor</option>
                     {filteredDoctors.map((doctor) => (
                       <option key={doctor.doctor_id} value={doctor.doctor_id}>
-                        Dr. {doctor.firstName} {doctor.lastName} - {doctor.specialization}
+                        Dr. {doctor.firstName} {doctor.lastName}
                       </option>
                     ))}
                   </select>
-                  {fetchingDoctors && <p className="mt-1 text-xs text-gray-500">Loading doctors...</p>}
+                  {fetchingDoctors && (
+                    <div className="mt-1 flex items-center text-xs text-gray-500">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading doctors...
+                    </div>
+                  )}
                   {!fetchingDoctors && formData.department && filteredDoctors.length === 0 && (
                     <p className="mt-1 text-xs text-red-500">No doctors available in this department</p>
                   )}
                 </div>
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="date" className="block text-sm font-medium leading-6 text-gray-900">
-                  Preferred Date
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="date"
-                    name="date"
-                    id="date"
-                    required
-                    min={new Date().toISOString().split('T')[0]}
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
+            {/* Date and Time Section */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                <ClockIcon className="h-5 w-5 mr-2 text-primary-500" />
+                Schedule
+              </h3>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="relative">
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Date
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <CalendarIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="date"
+                      name="date"
+                      id="date"
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label htmlFor="time" className="block text-sm font-medium leading-6 text-gray-900">
-                  Preferred Time
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="time"
-                    name="time"
-                    id="time"
-                    required
-                    value={formData.time}
-                    onChange={handleChange}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  />
+                <div className="relative">
+                  <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
+                    Preferred Time
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <ClockIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="time"
+                      name="time"
+                      id="time"
+                      required
+                      value={formData.time}
+                      onChange={handleChange}
+                      className="block w-full pl-10 pr-3 py-2 rounded-md border border-gray-300 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div>
-              <label htmlFor="reason" className="block text-sm font-medium leading-6 text-gray-900">
+            {/* Reason for Visit */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                <ClipboardDocumentListIcon className="h-5 w-5 mr-2 text-primary-500" />
                 Reason for Visit
-              </label>
-              <div className="mt-2">
+              </h3>
+              <div>
                 <textarea
                   id="reason"
                   name="reason"
@@ -322,21 +393,38 @@ export default function Appointment() {
                   required
                   value={formData.reason}
                   onChange={handleChange}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
-                  placeholder="Please describe the reason for your visit..."
+                  placeholder="Please describe your symptoms or the reason for your consultation..."
+                  className="block w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 />
               </div>
             </div>
 
-            <div>
+            {/* Submit Button */}
+            <div className="mt-8">
               <button
                 type="submit"
                 disabled={loading || fetchingDoctors}
-                className="block w-full rounded-md bg-primary-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full flex justify-center items-center px-4 py-3 border border-transparent rounded-md shadow-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200"
               >
-                {loading ? 'Processing...' : 'Schedule Appointment'}
+                {loading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  'Schedule Appointment'
+                )}
               </button>
             </div>
+            
+            {/* Privacy Note */}
+            <p className="mt-4 text-xs text-center text-gray-500">
+              By scheduling an appointment, you agree to our privacy policy and terms of service.
+              Your personal information will be handled according to our privacy guidelines.
+            </p>
           </form>
         </div>
       </div>
