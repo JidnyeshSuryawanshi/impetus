@@ -161,12 +161,14 @@ export default function Home() {
               </div>
             </div>
             <div className="mt-6">
-              <Link
-                to="/chatbot"
+              <a
+                href="http://127.0.0.1:8080/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center rounded-md bg-primary-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
               >
                 Try the Chatbot <span aria-hidden="true">→</span>
-              </Link>
+              </a>
             </div>
           </div>
         </div>

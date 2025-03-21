@@ -38,8 +38,9 @@ const services = [
     name: 'Medical Chatbot',
     description: '24/7 AI-powered medical chatbot that provides instant answers to your health-related queries.',
     icon: ChatBubbleLeftRightIcon,
-    link: '/chatbot',
+    link: 'http://127.0.0.1:8080/',
     color: 'bg-yellow-500',
+    isExternal: true,
   },
   {
     name: 'Appointment Booking',
@@ -94,12 +95,23 @@ export default function Services() {
               <h3 className="text-xl font-semibold leading-7 text-gray-900">{service.name}</h3>
               <p className="mt-4 text-base leading-7 text-gray-600">{service.description}</p>
               <div className="mt-6">
-                <Link
-                  to={service.link}
-                  className="text-sm font-semibold leading-6 text-primary-600 hover:text-primary-500"
-                >
-                  Learn more <span aria-hidden="true">→</span>
-                </Link>
+                {service.isExternal ? (
+                  <a
+                    href={service.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-semibold leading-6 text-primary-600 hover:text-primary-500"
+                  >
+                    Learn more <span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <Link
+                    to={service.link}
+                    className="text-sm font-semibold leading-6 text-primary-600 hover:text-primary-500"
+                  >
+                    Learn more <span aria-hidden="true">→</span>
+                  </Link>
+                )}
               </div>
             </div>
           ))}
