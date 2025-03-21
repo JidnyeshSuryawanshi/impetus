@@ -16,10 +16,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       setLoading(true);
-      
+
       const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/users/login`, {
         method: 'POST',
         headers: {
@@ -36,13 +36,13 @@ export default function Login() {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      
+
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/services');
       }
-      
+
     } catch (err) {
       setError(err.message || 'Invalid email or password');
     } finally {
@@ -76,7 +76,7 @@ export default function Login() {
               {error}
             </div>
           )}
-          
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -137,8 +137,8 @@ export default function Login() {
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </div>
-            
-            <div className="mt-4 flex items-center justify-center">
+
+            {/* <div className="mt-4 flex items-center justify-center">
               <Link 
                 to="/doctor-login" 
                 className={`font-medium text-primary-600 hover:text-primary-500 ${
@@ -147,17 +147,16 @@ export default function Login() {
               >
                 Sign in as a doctor
               </Link>
-            </div>
+            </div> */}
           </form>
         </div>
 
         <p className="mt-8 text-center text-sm text-gray-600">
           Don't have an account?{' '}
-          <Link 
-            to="/register" 
-            className={`font-medium text-primary-600 hover:text-primary-500 ${
-              loading ? 'pointer-events-none opacity-50' : ''
-            }`}
+          <Link
+            to="/register"
+            className={`font-medium text-primary-600 hover:text-primary-500 ${loading ? 'pointer-events-none opacity-50' : ''
+              }`}
           >
             Sign up
           </Link>
